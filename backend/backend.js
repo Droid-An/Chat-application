@@ -5,11 +5,19 @@ const app = express();
 app.use(cors());
 const port = 3000;
 
-const messages = [];
+const arrayOfMessageObjects = [];
+
+app.listen(port, () => {
+  console.error(`chat server listening on port ${port}`);
+});
+
+//just test
+// app.get("/messages/", (req, res) => {
+//   res.send({ messages: messages });
+// });
 
 app.get("/", (req, res) => {
-  const quote = randomQuote();
-  res.send({ author: quote.author, quote: quote.quote });
+  res.send(arrayOfMessageObjects);
 });
 
 app.post("/", (req, res) => {
@@ -34,9 +42,9 @@ app.post("/", (req, res) => {
         .send("Expected body to be a JSON object containing key message.");
       return;
     }
-    messages.push({
+    arrayOfMessageObjects.push({
       messageText: body.messageText,
     });
-    // res.send("Quote has been added successfully");
+    res.send("message has been added successfully");
   });
 });
