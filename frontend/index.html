@@ -4,11 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <title>Chat</title>
 </head>
 
 <body>
-
+    <header>
+        <h1>Chat application</h1>
+    </header>
+    <section id="messageEditor">
+        <form id="messageForm">
+            <label for="inputMessage">Write your message here:</label>
+            <input id="inputMessage" type="text" name="message-text" required>
+            <button id="sendMessageBtn" type="submit">Send</button>
+        </form>
+        <p id="feedbackMessage"></p>
+    </section>
+    <section id="chatField"></section>
+    <script defer src="scripts.js"></script>
 </body>
 
 </html>

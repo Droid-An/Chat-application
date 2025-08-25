@@ -1,0 +1,5 @@
+#chatField {
+    border: 1px dotted black;
+    min-height: 40px ;
+    margin-top: 1%;
+}
