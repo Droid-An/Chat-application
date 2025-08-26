@@ -6,7 +6,8 @@ const sendMessageBtn = document.querySelector("#sendMessageBtn");
 const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 
-const backendUrl = "http://localhost:3000";
+const backendUrl =
+  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
 const postMessage1 = async () => {
   const messageText = inputMessage.value.trim();
