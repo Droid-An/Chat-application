@@ -6,10 +6,10 @@ const sendMessageBtn = document.querySelector("#sendMessageBtn");
 const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+// const backendUrl =
+//   "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
-// const backendUrl = "http://localhost:3000";
+const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 
@@ -41,27 +41,6 @@ const postMessageToBackend = async () => {
     feedbackMessage.textContent = err;
   }
 };
-
-// const fetchMessages = async () => {
-//   try {
-//     const response = await fetch(backendUrl);
-//     const messageProperty = await response.json();
-//     console.log("received answer from backend");
-//     return messageProperty;
-//   } catch (err) {
-//     chatField.innerText = err;
-//   }
-// };
-
-// const showNewMessage = async () => {
-//   console.log("showNewMessage function has been triggered");
-//   const arrayOfMessageObjects = await fetchMessages();
-//   chatField.innerHTML = "";
-//   for (const messageObject of arrayOfMessageObjects) {
-//     createMessageElement(messageObject);
-//   }
-//   console.log("all messages has been rendered on page");
-// };
 
 const processMessagePost = async (e) => {
   e.preventDefault();

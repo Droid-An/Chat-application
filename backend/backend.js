@@ -12,6 +12,8 @@ const arrayOfMessageObjects = [
   },
 ];
 
+const callbacksForNewMessages = [];
+
 app.listen(port, () => {
   console.error(`chat server listening on port ${port}`);
 });
@@ -47,6 +49,10 @@ app.post("/", (req, res) => {
       messageText: body.messageText,
       timestamp: body.timestamp,
     });
+    while (callbacksForNewMessages.length > 0) {
+      const callback = callbacksForNewMessages.pop();
+      callback([arrayOfMessageObjects[arrayOfMessageObjects.length - 1]]);
+    }
     res.send("message has been added successfully");
   });
 });
@@ -65,6 +71,13 @@ app.get("/messages", (req, res) => {
     "Messages that will be sent to the front after filter",
     filteredMessages
   );
-
-  res.json(filteredMessages);
+  if (filteredMessages.length === 0) {
+    console.log("=0");
+    // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
+    // This is because of handling of "this".
+    // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+    callbacksForNewMessages.push((value) => res.json(value));
+  } else {
+    res.json(filteredMessages);
+  }
 });
