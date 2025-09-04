@@ -1,5 +1,29 @@
-#chatField {
-    border: 1px dotted black;
-    min-height: 40px ;
-    margin-top: 1%;
+body {
+  overflow-x: hidden; /* keep this */
+  /* width: 100%; */
 }
+
+label {
+    display: block;
+}
+
+textarea {
+    display: block;
+    margin: 1rem 0;
+    resize: vertical;
+}
+
+#chatField {
+  border: 1px dotted black;
+  min-height: 40px;
+  margin-top: 1em;
+  overflow-wrap: anywhere; /* allows breaking inside long "words" */
+  word-break: break-word;  /* ensures overflow is cut and wrapped */
+}
+
+.messageElement {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap; /* preserve line breaks but allow wrapping */
+}
+

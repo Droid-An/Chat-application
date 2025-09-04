@@ -5,11 +5,12 @@ const inputMessage = document.querySelector("#inputMessage");
 const sendMessageBtn = document.querySelector("#sendMessageBtn");
 const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
+const messageElements = document.querySelector(".messageElement");
 
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+// const backendUrl =
+//   "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
-// const backendUrl = "http://localhost:3000";
+const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 
@@ -50,8 +51,19 @@ const processMessagePost = async (e) => {
 
 const createMessageElement = (messageObject) => {
   const messageElement = document.createElement("p");
+
+  messageElement.classList.add("messageElement");
   messageElement.textContent = messageObject.messageText;
+  messageElement.addEventListener("contextmenu", (event) => {
+    console.log("Right click detected!");
+    event.preventDefault();
+  });
   chatField.appendChild(messageElement);
+
+  const ratingElement = document.createElement("div");
+  ratingElement.classList.add("ratingElement");
+  ratingElement.textContent = "1👍1👎";
+  chatField.appendChild(ratingElement);
 };
 
 const keepFetchingMessages = async () => {
@@ -81,3 +93,5 @@ const render = async () => {
     createMessageElement(messageObject);
   }
 };
+
+console.log(messageElements);
