@@ -9,10 +9,13 @@ const arrayOfMessageObjects = [
   {
     messageText: "test message",
     timestamp: Date.now(),
+    likes: 0,
+    dislikes: 0,
   },
 ];
 
 const callbacksForNewMessages = [];
+const callbacksForNewRatings = [];
 
 app.listen(port, () => {
   console.error(`chat server listening on port ${port}`);
@@ -48,6 +51,8 @@ app.post("/", (req, res) => {
     arrayOfMessageObjects.push({
       messageText: body.messageText,
       timestamp: body.timestamp,
+      likes: 0,
+      dislikes: 0,
     });
     while (callbacksForNewMessages.length > 0) {
       const callback = callbacksForNewMessages.pop();
@@ -59,7 +64,6 @@ app.post("/", (req, res) => {
 
 app.get("/messages", (req, res) => {
   const since = parseInt(req.query.since, 10);
-  console.log("frontend asks to get messages since", since);
 
   let filteredMessages = arrayOfMessageObjects;
   if (!isNaN(since)) {
@@ -67,12 +71,7 @@ app.get("/messages", (req, res) => {
       (message) => message.timestamp > since
     );
   }
-  console.log(
-    "Messages that will be sent to the front after filter",
-    filteredMessages
-  );
   if (filteredMessages.length === 0) {
-    console.log("=0");
     // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
     // This is because of handling of "this".
     // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
@@ -80,4 +79,49 @@ app.get("/messages", (req, res) => {
   } else {
     res.json(filteredMessages);
   }
+});
+
+app.post("/rate", (req, res) => {
+  const bodyBytes = [];
+  req.on("data", (chunk) => bodyBytes.push(...chunk));
+  req.on("end", () => {
+    const bodyString = String.fromCharCode(...bodyBytes);
+    let body;
+    try {
+      body = JSON.parse(bodyString);
+    } catch (error) {
+      console.error(`Failed to parse body ${bodyString} as JSON: ${error}`);
+      res.status(400).send("Expected body to be JSON.");
+      return;
+    }
+    if (typeof body != "object" || !("rating" in body)) {
+      console.error(
+        `Failed to extract text of the message from post body: ${bodyString}`
+      );
+      res
+        .status(400)
+        // .send("Expected body to be a JSON object containing message rating.");
+        .send("Expected body to be a JSON object containing message rating.");
+      return;
+    }
+    const messageRatingToChange = arrayOfMessageObjects.find(
+      (message) => message.timestamp == body.timestamp
+    );
+    if (body.rating == "like") {
+      messageRatingToChange.likes++;
+    } else if (body.rating == "dislike") {
+      messageRatingToChange.dislikes++;
+    }
+
+    res.send("message has been added successfully");
+  });
+});
+
+app.get("/rate", (req, res) => {
+  const ratings = arrayOfMessageObjects.map((msg) => ({
+    timestamp: msg.timestamp,
+    likes: msg.likes || 0,
+    dislikes: msg.dislikes || 0,
+  }));
+  res.json(ratings);
 });
