@@ -47,7 +47,7 @@ app.post("/", (req, res) => {
         .send("Expected body to be a JSON object containing key message.");
       return;
     }
-    console.log("timestamp from the frontend's request", body.timestamp);
+
     arrayOfMessageObjects.push({
       messageText: body.messageText,
       timestamp: body.timestamp,
