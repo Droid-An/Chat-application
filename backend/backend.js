@@ -100,7 +100,6 @@ app.post("/rate", (req, res) => {
       );
       res
         .status(400)
-        // .send("Expected body to be a JSON object containing message rating.");
         .send("Expected body to be a JSON object containing message rating.");
       return;
     }
@@ -112,16 +111,21 @@ app.post("/rate", (req, res) => {
     } else if (body.rating == "dislike") {
       messageRatingToChange.dislikes++;
     }
+    const ratings = arrayOfMessageObjects.map((msg) => ({
+      timestamp: msg.timestamp,
+      likes: msg.likes || 0,
+      dislikes: msg.dislikes || 0,
+    }));
+    while (callbacksForNewRatings.length > 0) {
+      const callback = callbacksForNewRatings.pop();
+      callback(ratings);
+    }
 
     res.send("message has been added successfully");
   });
 });
 
 app.get("/rate", (req, res) => {
-  const ratings = arrayOfMessageObjects.map((msg) => ({
-    timestamp: msg.timestamp,
-    likes: msg.likes || 0,
-    dislikes: msg.dislikes || 0,
-  }));
-  res.json(ratings);
+  callbacksForNewRatings.push((value) => res.json(value));
+  //   res.json(ratings);
 });
