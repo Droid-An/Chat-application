@@ -15,6 +15,8 @@ const backendUrl = "http://localhost:3000";
 const state = { messages: [] };
 
 const timestamp = Date.now();
+let likeCounter = 0;
+let dislikeCounter = 0;
 
 const postMessageToBackend = async () => {
   const messageText = inputMessage.value.trim();
@@ -50,20 +52,41 @@ const processMessagePost = async (e) => {
 };
 
 const createMessageElement = (messageObject) => {
-  const messageElement = document.createElement("p");
+  const messageElement = document.createElement("div");
 
   messageElement.classList.add("messageElement");
-  messageElement.textContent = messageObject.messageText;
-  messageElement.addEventListener("contextmenu", (event) => {
-    console.log("Right click detected!");
-    event.preventDefault();
-  });
-  chatField.appendChild(messageElement);
+
+  const messageText = document.createElement("p");
+  messageText.textContent = messageObject.messageText;
+  messageText.classList.add("messageText");
 
   const ratingElement = document.createElement("div");
   ratingElement.classList.add("ratingElement");
-  ratingElement.textContent = "1👍1👎";
-  chatField.appendChild(ratingElement);
+
+  const likesAmount = document.createElement("div");
+  likesAmount.textContent = likeCounter;
+  const likeButton = document.createElement("button");
+  likeButton.textContent = "👍";
+  likeButton.addEventListener(
+    "click",
+    // sendRating(messageObject.timestamp, likesAmount, "like")
+    () => console.log(likeCounter)
+  );
+
+  const dislikesAmount = document.createElement("div");
+  dislikesAmount.textContent = dislikeCounter;
+  const dislikeButton = document.createElement("button");
+  dislikeButton.textContent = "👎";
+  dislikeButton.addEventListener("click", () => console.log("dislike"));
+
+  ratingElement.appendChild(likesAmount);
+  ratingElement.appendChild(likeButton);
+  ratingElement.appendChild(dislikesAmount);
+  ratingElement.appendChild(dislikeButton);
+
+  messageElement.appendChild(ratingElement);
+  messageElement.appendChild(messageText);
+  chatField.appendChild(messageElement);
 };
 
 const keepFetchingMessages = async () => {
@@ -95,3 +118,5 @@ const render = async () => {
 };
 
 console.log(messageElements);
+
+const sendRating = async (messageTimestamp, rating) => {};
