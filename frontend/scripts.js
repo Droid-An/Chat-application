@@ -140,3 +140,14 @@ const keepFetchingRatings = async () => {
   render();
   setTimeout(keepFetchingRatings, 1000);
 };
+
+//websockets
+const websocket = new WebSocket("ws://localhost:8080");
+
+websocket.addEventListener("open", () => {
+  console.log("CONNECTED");
+});
+
+websocket.addEventListener("error", (e) => {
+  console.log(`ERROR`);
+});

@@ -1,3 +1,4 @@
+"use strict";
 import express from "express";
 import cors from "cors";
 
@@ -128,4 +129,35 @@ app.post("/rate", (req, res) => {
 app.get("/rate", (req, res) => {
   callbacksForNewRatings.push((value) => res.json(value));
   //   res.json(ratings);
+});
+
+// websockets
+import http from "http";
+import { server as WebSocketServer } from "websocket";
+const server = http.createServer(app);
+const webSocketServer = new WebSocketServer({ httpServer: server });
+
+server.listen(8080, function () {
+  console.log(new Date() + " Server is listening on port 8080");
+});
+
+webSocketServer.on("request", function (request) {
+  const connection = request.accept(null, request.origin);
+  console.log(new Date() + " Connection accepted.");
+  connection.on("message", function (message) {
+    if (message.type === "utf8") {
+      console.log("Received Message: " + message.utf8Data);
+      connection.sendUTF(message.utf8Data);
+    } else if (message.type === "binary") {
+      console.log(
+        "Received Binary Message of " + message.binaryData.length + " bytes"
+      );
+      connection.sendBytes(message.binaryData);
+    }
+  });
+  connection.on("close", function (reasonCode, description) {
+    console.log(
+      new Date() + " Peer " + connection.remoteAddress + " disconnected."
+    );
+  });
 });
