@@ -1,5 +1,4 @@
 "use strict";
-
 const websocket = new WebSocket("ws://localhost:8080");
 
 websocket.addEventListener("open", () => {
@@ -97,20 +96,28 @@ const createMessageElement = (messageObject) => {
   chatField.appendChild(messageElement);
 };
 
-const keepFetchingMessages = async () => {
-  const lastMessageTime =
-    state.messages.length > 0
-      ? state.messages[state.messages.length - 1].timestamp
-      : null;
-  console.log("ask message since", lastMessageTime);
-  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+// const keepFetchingMessages = async () => {
+//   const lastMessageTime =
+//     state.messages.length > 0
+//       ? state.messages[state.messages.length - 1].timestamp
+//       : null;
+//   console.log("ask message since", lastMessageTime);
+//   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+//   const url = `${backendUrl}/messages${queryString}`;
+//   const rawResponse = await fetch(url);
+//   const response = await rawResponse.json();
+//   state.messages.push(...response);
+
+//   render();
+//   setTimeout(keepFetchingMessages, 1000);
+// };
+const fetchAllMessages = async () => {
+  const queryString = "";
   const url = `${backendUrl}/messages${queryString}`;
   const rawResponse = await fetch(url);
   const response = await rawResponse.json();
   state.messages.push(...response);
-
   render();
-  setTimeout(keepFetchingMessages, 1000);
 };
 
 form.addEventListener("submit", processMessagePost);
@@ -150,9 +157,12 @@ const keepFetchingRatings = async () => {
 // window.onload = () => {
 //   keepFetchingMessages(), keepFetchingRatings();
 // };
-keepFetchingMessages();
+// keepFetchingMessages();
+fetchAllMessages();
 keepFetchingRatings();
 
 websocket.addEventListener("message", (mesEvent) => {
-  console.log(mesEvent.data);
+  const response = JSON.parse(mesEvent.data);
+  state.messages.push(response);
+  render();
 });
