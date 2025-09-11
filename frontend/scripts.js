@@ -3,6 +3,8 @@ const websocket = new WebSocket("ws://localhost:8080");
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
+  fetchAllMessagesSince();
+  keepFetchingRatings();
 });
 
 websocket.addEventListener("error", (e) => {
@@ -96,24 +98,9 @@ const createMessageElement = (messageObject) => {
   chatField.appendChild(messageElement);
 };
 
-// const keepFetchingMessages = async () => {
-//   const lastMessageTime =
-//     state.messages.length > 0
-//       ? state.messages[state.messages.length - 1].timestamp
-//       : null;
-//   console.log("ask message since", lastMessageTime);
-//   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-//   const url = `${backendUrl}/messages${queryString}`;
-//   const rawResponse = await fetch(url);
-//   const response = await rawResponse.json();
-//   state.messages.push(...response);
-
-//   render();
-//   setTimeout(keepFetchingMessages, 1000);
-// };
 const fetchAllMessages = async () => {
-  const queryString = "";
-  const url = `${backendUrl}/messages${queryString}`;
+  console.log("user wants to fetch all messages");
+  const url = `${backendUrl}/messages`;
   const rawResponse = await fetch(url);
   const response = await rawResponse.json();
   state.messages.push(...response);
@@ -124,6 +111,8 @@ form.addEventListener("submit", processMessagePost);
 
 const render = async () => {
   chatField.innerHTML = "";
+  console.log(state.messages);
+  console.log(Math.max(...state.messages.map((obj) => obj.timestamp)));
   for (const messageObject of state.messages) {
     createMessageElement(messageObject);
   }
@@ -154,15 +143,32 @@ const keepFetchingRatings = async () => {
   setTimeout(keepFetchingRatings, 1000);
 };
 
-// window.onload = () => {
-//   keepFetchingMessages(), keepFetchingRatings();
-// };
-// keepFetchingMessages();
-fetchAllMessages();
-keepFetchingRatings();
-
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
-  state.messages.push(response);
-  render();
+  if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {
+    state.messages.push(response);
+    render();
+  } else {
+    console.log("message is already on list");
+  }
 });
+
+const fetchAllMessagesSince = async () => {
+  const lastMessageTime =
+    state.messages.length > 0
+      ? state.messages[state.messages.length - 1].timestamp
+      : null;
+  console.log("ask message since", lastMessageTime);
+  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+  const url = `${backendUrl}/messages${queryString}`;
+  const rawResponse = await fetch(url);
+  const response = await rawResponse.json();
+  console.log(response);
+  for (let object of response) {
+    if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
+      state.messages.push(object);
+    }
+  }
+
+  render();
+};

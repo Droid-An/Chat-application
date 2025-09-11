@@ -150,9 +150,9 @@ app.get("/rate", (req, res) => {
 webSocketServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
   console.log(new Date() + " Connection accepted.");
-  console.log("new connection", connection);
   activeWsConnections.push(connection);
   connection.on("close", function (reasonCode, description) {
+    // put removing connection from active connections array here
     console.log(
       new Date() + " Peer " + connection.remoteAddress + " disconnected."
     );
