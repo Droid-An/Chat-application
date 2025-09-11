@@ -1,5 +1,15 @@
 "use strict";
 
+const websocket = new WebSocket("ws://localhost:8080");
+
+websocket.addEventListener("open", () => {
+  console.log("CONNECTED");
+});
+
+websocket.addEventListener("error", (e) => {
+  console.log(`ERROR`);
+});
+
 const form = document.querySelector("#messageForm");
 const inputMessage = document.querySelector("#inputMessage");
 const sendMessageBtn = document.querySelector("#sendMessageBtn");
@@ -7,10 +17,10 @@ const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 const messageElements = document.querySelector(".messageElement");
 
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+// const backendUrl =
+//   "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
-// const backendUrl = "http://localhost:3000";
+const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 
@@ -105,10 +115,6 @@ const keepFetchingMessages = async () => {
 
 form.addEventListener("submit", processMessagePost);
 
-window.onload = () => {
-  keepFetchingMessages(), keepFetchingRatings();
-};
-
 const render = async () => {
   chatField.innerHTML = "";
   for (const messageObject of state.messages) {
@@ -141,13 +147,12 @@ const keepFetchingRatings = async () => {
   setTimeout(keepFetchingRatings, 1000);
 };
 
-//websockets
-const websocket = new WebSocket("ws://localhost:8080");
+// window.onload = () => {
+//   keepFetchingMessages(), keepFetchingRatings();
+// };
+keepFetchingMessages();
+keepFetchingRatings();
 
-websocket.addEventListener("open", () => {
-  console.log("CONNECTED");
-});
-
-websocket.addEventListener("error", (e) => {
-  console.log(`ERROR`);
+websocket.addEventListener("message", (mesEvent) => {
+  console.log(mesEvent.data);
 });

@@ -17,6 +17,17 @@ const arrayOfMessageObjects = [
 
 const callbacksForNewMessages = [];
 const callbacksForNewRatings = [];
+const activeWsConnections = [];
+
+// websockets
+import http from "http";
+import { server as WebSocketServer } from "websocket";
+const server = http.createServer(app);
+const webSocketServer = new WebSocketServer({ httpServer: server });
+
+server.listen(8080, function () {
+  console.log(new Date() + " Server is listening on port 8080");
+});
 
 app.listen(port, () => {
   console.error(`chat server listening on port ${port}`);
@@ -48,13 +59,18 @@ app.post("/", (req, res) => {
         .send("Expected body to be a JSON object containing key message.");
       return;
     }
-
-    arrayOfMessageObjects.push({
+    const newMessage = {
       messageText: body.messageText,
       timestamp: body.timestamp,
       likes: 0,
       dislikes: 0,
+    };
+    arrayOfMessageObjects.push(newMessage);
+
+    activeWsConnections.forEach((connection) => {
+      connection.sendUTF(JSON.stringify(newMessage));
     });
+
     while (callbacksForNewMessages.length > 0) {
       const callback = callbacksForNewMessages.pop();
       callback([arrayOfMessageObjects[arrayOfMessageObjects.length - 1]]);
@@ -131,30 +147,32 @@ app.get("/rate", (req, res) => {
   //   res.json(ratings);
 });
 
-// websockets
-import http from "http";
-import { server as WebSocketServer } from "websocket";
-const server = http.createServer(app);
-const webSocketServer = new WebSocketServer({ httpServer: server });
+// webSocketServer.on("request", function (request) {
+//   const connection = request.accept(null, request.origin);
+//   console.log(new Date() + " Connection accepted.");
+//   connection.on("message", function (message) {
+//     if (message.type === "utf8") {
+//       console.log("Received Message: " + message.utf8Data);
+//       connection.sendUTF(message.utf8Data);
+//     } else if (message.type === "binary") {
+//       console.log(
+//         "Received Binary Message of " + message.binaryData.length + " bytes"
+//       );
+//       connection.sendBytes(message.binaryData);
+//     }
+//   });
+//   connection.on("close", function (reasonCode, description) {
+//     console.log(
+//       new Date() + " Peer " + connection.remoteAddress + " disconnected."
+//     );
+//   });
+// });
 
-server.listen(8080, function () {
-  console.log(new Date() + " Server is listening on port 8080");
-});
-
-webSocketServer.on("request", function (request) {
+webSocketServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
   console.log(new Date() + " Connection accepted.");
-  connection.on("message", function (message) {
-    if (message.type === "utf8") {
-      console.log("Received Message: " + message.utf8Data);
-      connection.sendUTF(message.utf8Data);
-    } else if (message.type === "binary") {
-      console.log(
-        "Received Binary Message of " + message.binaryData.length + " bytes"
-      );
-      connection.sendBytes(message.binaryData);
-    }
-  });
+  console.log("new connection", connection);
+  activeWsConnections.push(connection);
   connection.on("close", function (reasonCode, description) {
     console.log(
       new Date() + " Peer " + connection.remoteAddress + " disconnected."
