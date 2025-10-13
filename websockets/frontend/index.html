@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css" />
+    <title>Chat</title>
+</head>
+
+<body>
+    <header>
+        <h1>Chat application</h1>
+    </header>
+    <section id="messageEditor">
+        <form id="messageForm">
+            <label for="inputMessage">Write your message here:</label>
+            <textarea id="inputMessage" name="message-text" required></textarea>
+            <button id="sendMessageBtn" type="submit">Send</button>
+        </form>
+        <p id="feedbackMessage"></p>
+    </section>
+    <section id="chatField"></section>
+    <script defer src="client.js"></script>
+</body>
+
+</html>

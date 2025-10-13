@@ -1,0 +1,29 @@
+
+label {
+    display: block;
+}
+
+textarea {
+    display: block;
+    margin: 1rem 0;
+    resize: vertical;
+}
+
+#chatField {
+  border: 1px dotted black;
+  min-height: 40px;
+  margin-top: 1em;
+}
+
+.messageElement {
+    display: flex;
+    align-items: baseline;
+}
+
+/* .messageText{
+      width: 30%;
+} */
+.ratingElement{
+    display: flex;
+    width: 5em;
+}

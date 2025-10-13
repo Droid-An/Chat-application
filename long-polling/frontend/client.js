@@ -5,6 +5,7 @@ const inputMessage = document.querySelector("#inputMessage");
 const sendMessageBtn = document.querySelector("#sendMessageBtn");
 const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
+const messageElements = document.querySelector(".messageElement");
 
 const backendUrl =
   "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
@@ -42,27 +43,6 @@ const postMessageToBackend = async () => {
   }
 };
 
-// const fetchMessages = async () => {
-//   try {
-//     const response = await fetch(backendUrl);
-//     const messageProperty = await response.json();
-//     console.log("received answer from backend");
-//     return messageProperty;
-//   } catch (err) {
-//     chatField.innerText = err;
-//   }
-// };
-
-// const showNewMessage = async () => {
-//   console.log("showNewMessage function has been triggered");
-//   const arrayOfMessageObjects = await fetchMessages();
-//   chatField.innerHTML = "";
-//   for (const messageObject of arrayOfMessageObjects) {
-//     createMessageElement(messageObject);
-//   }
-//   console.log("all messages has been rendered on page");
-// };
-
 const processMessagePost = async (e) => {
   e.preventDefault();
   console.log("user wants to send the message");
@@ -70,8 +50,40 @@ const processMessagePost = async (e) => {
 };
 
 const createMessageElement = (messageObject) => {
-  const messageElement = document.createElement("p");
-  messageElement.textContent = messageObject.messageText;
+  const messageElement = document.createElement("div");
+
+  messageElement.classList.add("messageElement");
+
+  const messageText = document.createElement("p");
+  messageText.textContent = messageObject.messageText;
+  messageText.classList.add("messageText");
+
+  const ratingElement = document.createElement("div");
+  ratingElement.classList.add("ratingElement");
+
+  const likesAmount = document.createElement("div");
+  likesAmount.textContent = messageObject.likes;
+  const likeButton = document.createElement("button");
+  likeButton.textContent = "👍";
+  likeButton.addEventListener("click", () =>
+    sendRating(messageObject.timestamp, "like")
+  );
+
+  const dislikesAmount = document.createElement("div");
+  dislikesAmount.textContent = messageObject.dislikes;
+  const dislikeButton = document.createElement("button");
+  dislikeButton.textContent = "👎";
+  dislikeButton.addEventListener("click", () =>
+    sendRating(messageObject.timestamp, "dislike")
+  );
+
+  ratingElement.appendChild(likesAmount);
+  ratingElement.appendChild(likeButton);
+  ratingElement.appendChild(dislikesAmount);
+  ratingElement.appendChild(dislikeButton);
+
+  messageElement.appendChild(ratingElement);
+  messageElement.appendChild(messageText);
   chatField.appendChild(messageElement);
 };
 
@@ -80,25 +92,51 @@ const keepFetchingMessages = async () => {
     state.messages.length > 0
       ? state.messages[state.messages.length - 1].timestamp
       : null;
+  console.log("ask message since", lastMessageTime);
   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
   const url = `${backendUrl}/messages${queryString}`;
-  console.log(url);
   const rawResponse = await fetch(url);
   const response = await rawResponse.json();
-  console.log(response);
   state.messages.push(...response);
-  console.log("current state", state);
+
   render();
   setTimeout(keepFetchingMessages, 1000);
 };
 
 form.addEventListener("submit", processMessagePost);
 
-window.onload = keepFetchingMessages;
+window.onload = () => {
+  keepFetchingMessages(), keepFetchingRatings();
+};
 
 const render = async () => {
   chatField.innerHTML = "";
   for (const messageObject of state.messages) {
     createMessageElement(messageObject);
   }
+};
+
+const sendRating = async (timestamp, rating) => {
+  await fetch(`${backendUrl}/rate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ timestamp, rating }),
+  });
+};
+
+const keepFetchingRatings = async () => {
+  const url = `${backendUrl}/rate`;
+  const rawResponse = await fetch(url);
+  const ratings = await rawResponse.json();
+
+  // Update ratings in state.messages
+  for (const rating of ratings) {
+    const msg = state.messages.find((m) => m.timestamp === rating.timestamp);
+    if (msg) {
+      msg.likes = rating.likes;
+      msg.dislikes = rating.dislikes;
+    }
+  }
+  render();
+  setTimeout(keepFetchingRatings, 1000);
 };
