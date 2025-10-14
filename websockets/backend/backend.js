@@ -78,14 +78,7 @@ app.get("/messages", (req, res) => {
       (message) => message.timestamp > since
     );
   }
-  if (filteredMessages.length === 0) {
-    // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
-    // This is because of handling of "this".
-    // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
-    callbacksForNewMessages.push((value) => res.json(value));
-  } else {
-    res.json(filteredMessages);
-  }
+  res.json(filteredMessages);
 });
 
 app.post("/rate", (req, res) => {
