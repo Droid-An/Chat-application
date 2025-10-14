@@ -1,5 +1,7 @@
 "use strict";
-const websocket = new WebSocket("ws://localhost:3000");
+const websocket = new WebSocket(
+  "wss://droid-an-chat-application-backend.hosting.codeyourfuture.io"
+);
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
@@ -19,10 +21,10 @@ const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 const messageElements = document.querySelector(".messageElement");
 
-// const backendUrl =
-// "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+const backendUrl =
+  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
-const backendUrl = "http://localhost:3000";
+// const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 
