@@ -15,7 +15,6 @@ const arrayOfMessageObjects = [
   },
 ];
 
-const callbacksForNewMessages = [];
 const callbacksForNewRatings = [];
 const activeWsConnections = [];
 
@@ -25,19 +24,15 @@ import { server as WebSocketServer } from "websocket";
 const server = http.createServer(app);
 const webSocketServer = new WebSocketServer({ httpServer: server });
 
-server.listen(8080, function () {
-  console.log(new Date() + " Server is listening on port 8080");
+server.listen(port, function () {
+  console.log("Server is listening on port", port);
 });
 
 app.listen(port, () => {
   console.error(`chat server listening on port ${port}`);
 });
 
-app.get("/", (req, res) => {
-  res.send(arrayOfMessageObjects);
-});
-
-app.post("/", (req, res) => {
+app.post("/message", (req, res) => {
   const bodyBytes = [];
   req.on("data", (chunk) => bodyBytes.push(...chunk));
   req.on("end", () => {
@@ -70,18 +65,13 @@ app.post("/", (req, res) => {
     activeWsConnections.forEach((connection) => {
       connection.sendUTF(JSON.stringify(newMessage));
     });
-
-    while (callbacksForNewMessages.length > 0) {
-      const callback = callbacksForNewMessages.pop();
-      callback([arrayOfMessageObjects[arrayOfMessageObjects.length - 1]]);
-    }
     res.send("message has been added successfully");
   });
 });
 
 app.get("/messages", (req, res) => {
   const since = parseInt(req.query.since, 10);
-
+  console.log(since);
   let filteredMessages = arrayOfMessageObjects;
   if (!isNaN(since)) {
     filteredMessages = arrayOfMessageObjects.filter(

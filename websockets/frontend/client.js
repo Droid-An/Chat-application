@@ -1,5 +1,5 @@
 "use strict";
-const websocket = new WebSocket("ws://localhost:8080");
+const websocket = new WebSocket("ws://localhost:3000");
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
@@ -8,6 +8,7 @@ websocket.addEventListener("open", () => {
 });
 
 websocket.addEventListener("error", (e) => {
+  console.log(e);
   console.log(`ERROR`);
 });
 
@@ -18,10 +19,10 @@ const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 const messageElements = document.querySelector(".messageElement");
 
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+// const backendUrl =
+// "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
 
-// const backendUrl = "http://localhost:3000";
+const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 
@@ -35,9 +36,10 @@ const postMessageToBackend = async () => {
     setTimeout(() => (feedbackMessage.textContent = ""), 5000);
     return;
   }
-
+  const url = `${backendUrl}/message`;
+  console.log(url);
   try {
-    const res = await fetch(backendUrl, {
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -98,15 +100,6 @@ const createMessageElement = (messageObject) => {
   chatField.appendChild(messageElement);
 };
 
-const fetchAllMessages = async () => {
-  console.log("user wants to fetch all messages");
-  const url = `${backendUrl}/messages`;
-  const rawResponse = await fetch(url);
-  const response = await rawResponse.json();
-  state.messages.push(...response);
-  render();
-};
-
 form.addEventListener("submit", processMessagePost);
 
 const render = async () => {
@@ -162,6 +155,7 @@ const fetchAllMessagesSince = async () => {
   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
   const url = `${backendUrl}/messages${queryString}`;
   const rawResponse = await fetch(url);
+  console.log(rawResponse);
   const response = await rawResponse.json();
   console.log(response);
   for (let object of response) {
