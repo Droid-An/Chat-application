@@ -1,8 +1,21 @@
 "use strict";
-const websocket = new WebSocket(
-  "wss://droid-an-chat-application-backend.hosting.codeyourfuture.io"
-);
-// const websocket = new WebSocket("http://localhost:3000");
+let websocket;
+let backendUrl;
+if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  backendUrl = "http://localhost:3000";
+  websocket = new WebSocket(backendUrl);
+  console.log("Running in local mode. Using local backend.");
+} else {
+  backendUrl =
+    "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+  websocket = new WebSocket(backendUrl);
+  console.log("Running in deployed mode. Using live backend.");
+}
+
+// const websocket = new WebSocket(`wss://${backendUrl}`);
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
@@ -21,11 +34,6 @@ const sendMessageBtn = document.querySelector("#sendMessageBtn");
 const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 const messageElements = document.querySelector(".messageElement");
-
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
-
-// const backendUrl = "http://localhost:3000";
 
 const state = { messages: [] };
 

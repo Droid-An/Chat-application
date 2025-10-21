@@ -7,10 +7,18 @@ const chatField = document.querySelector("#chatField");
 const feedbackMessage = document.querySelector("#feedbackMessage");
 const messageElements = document.querySelector(".messageElement");
 
-const backendUrl =
-  "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
-
-// const backendUrl = "http://localhost:3000";
+let backendUrl;
+if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  backendUrl = "http://localhost:3000";
+  console.log("Running in local mode. Using local backend.");
+} else {
+  backendUrl =
+    "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+  console.log("Running in deployed mode. Using live backend.");
+}
 
 const state = { messages: [] };
 
