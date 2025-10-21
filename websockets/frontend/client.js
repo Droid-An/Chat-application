@@ -20,7 +20,6 @@ if (
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
   fetchAllMessagesSince();
-  keepFetchingRatings();
 });
 
 websocket.addEventListener("error", (e) => {
@@ -39,12 +38,16 @@ const state = { messages: [] };
 
 const timestamp = Date.now();
 
+function showErrorMessage() {
+  feedbackMessage.textContent = "Text is required.";
+  setTimeout(() => (feedbackMessage.textContent = ""), 5000);
+}
+
 const postMessageToBackend = async () => {
   const messageText = inputMessage.value.trim();
 
   if (!messageText) {
-    feedbackMessage.textContent = "Text is required.";
-    setTimeout(() => (feedbackMessage.textContent = ""), 5000);
+    showErrorMessage();
     return;
   }
   const url = `${backendUrl}/message`;
@@ -55,7 +58,6 @@ const postMessageToBackend = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         messageText,
-        timestamp: Date.now(),
       }),
     });
     console.log("message posted to backend");
