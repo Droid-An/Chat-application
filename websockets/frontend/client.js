@@ -2,6 +2,7 @@
 const websocket = new WebSocket(
   "wss://droid-an-chat-application-backend.hosting.codeyourfuture.io"
 );
+// const websocket = new WebSocket("http://localhost:3000");
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
@@ -145,6 +146,14 @@ websocket.addEventListener("message", (mesEvent) => {
     render();
   } else {
     console.log("message is already on list");
+  }
+  if (response.type === "ratingUpdate") {
+    const msg = state.messages.find((m) => m.timestamp === response.timestamp);
+    if (msg) {
+      msg.likes = response.likes;
+      msg.dislikes = response.dislikes;
+      render();
+    }
   }
 });
 

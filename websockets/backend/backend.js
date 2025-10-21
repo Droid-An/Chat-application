@@ -111,17 +111,17 @@ app.post("/rate", (req, res) => {
     } else if (body.rating == "dislike") {
       messageRatingToChange.dislikes++;
     }
-    const ratings = arrayOfMessageObjects.map((msg) => ({
-      timestamp: msg.timestamp,
-      likes: msg.likes || 0,
-      dislikes: msg.dislikes || 0,
-    }));
-    while (callbacksForNewRatings.length > 0) {
-      const callback = callbacksForNewRatings.pop();
-      callback(ratings);
-    }
-
-    res.send("message has been added successfully");
+    activeWsConnections.forEach((connection) =>
+      connection.sendUTF(
+        JSON.stringify({
+          type: "ratingUpdate",
+          timestamp: body.timestamp,
+          likes: messageRatingToChange.likes,
+          dislikes: messageRatingToChange.dislikes,
+        })
+      )
+    );
+    res.send("message rating has been updated");
   });
 });
 
