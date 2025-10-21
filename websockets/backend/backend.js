@@ -15,7 +15,6 @@ const arrayOfMessageObjects = [
   },
 ];
 
-const callbacksForNewRatings = [];
 const activeWsConnections = [];
 
 // websockets
@@ -124,11 +123,6 @@ app.post("/rate", (req, res) => {
     res.send("message rating has been updated");
   });
 });
-
-// app.get("/rate", (req, res) => {
-//   callbacksForNewRatings.push((value) => res.json(value));
-//   //   res.json(ratings);
-// });
 
 webSocketServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
