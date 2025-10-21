@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 
 const app = express();
+app.use(express.json());
 app.use(cors());
 const port = 3000;
 
@@ -32,40 +33,27 @@ app.listen(port, () => {
 });
 
 app.post("/message", (req, res) => {
-  const bodyBytes = [];
-  req.on("data", (chunk) => bodyBytes.push(...chunk));
-  req.on("end", () => {
-    const bodyString = String.fromCharCode(...bodyBytes);
-    let body;
-    try {
-      body = JSON.parse(bodyString);
-    } catch (error) {
-      console.error(`Failed to parse body ${bodyString} as JSON: ${error}`);
-      res.status(400).send("Expected body to be JSON.");
-      return;
-    }
-    if (typeof body != "object" || !("messageText" in body)) {
-      console.error(
-        `Failed to extract text of the message from post body: ${bodyString}`
-      );
-      res
-        .status(400)
-        .send("Expected body to be a JSON object containing key message.");
-      return;
-    }
-    const newMessage = {
-      messageText: body.messageText,
-      timestamp: body.timestamp,
-      likes: 0,
-      dislikes: 0,
-    };
-    arrayOfMessageObjects.push(newMessage);
+  if (typeof req.body != "object" || !("messageText" in req.body)) {
+    console.error(
+      `Failed to extract text of the message from post body: ${bodyString}`
+    );
+    res
+      .status(400)
+      .send("Expected body to be a JSON object containing key message.");
+    return;
+  }
+  const newMessage = {
+    messageText: req.body.messageText,
+    timestamp: Date.now(),
+    likes: 0,
+    dislikes: 0,
+  };
+  arrayOfMessageObjects.push(newMessage);
 
-    activeWsConnections.forEach((connection) => {
-      connection.sendUTF(JSON.stringify(newMessage));
-    });
-    res.send("message has been added successfully");
+  activeWsConnections.forEach((connection) => {
+    connection.sendUTF(JSON.stringify(newMessage));
   });
+  res.send("message has been added successfully");
 });
 
 app.get("/messages", (req, res) => {
@@ -81,47 +69,34 @@ app.get("/messages", (req, res) => {
 });
 
 app.post("/rate", (req, res) => {
-  const bodyBytes = [];
-  req.on("data", (chunk) => bodyBytes.push(...chunk));
-  req.on("end", () => {
-    const bodyString = String.fromCharCode(...bodyBytes);
-    let body;
-    try {
-      body = JSON.parse(bodyString);
-    } catch (error) {
-      console.error(`Failed to parse body ${bodyString} as JSON: ${error}`);
-      res.status(400).send("Expected body to be JSON.");
-      return;
-    }
-    if (typeof body != "object" || !("rating" in body)) {
-      console.error(
-        `Failed to extract text of the message from post body: ${bodyString}`
-      );
-      res
-        .status(400)
-        .send("Expected body to be a JSON object containing message rating.");
-      return;
-    }
-    const messageRatingToChange = arrayOfMessageObjects.find(
-      (message) => message.timestamp == body.timestamp
+  if (typeof req.body != "object" || !("rating" in req.body)) {
+    console.error(
+      `Failed to extract text of the message from post body: ${bodyString}`
     );
-    if (body.rating == "like") {
-      messageRatingToChange.likes++;
-    } else if (body.rating == "dislike") {
-      messageRatingToChange.dislikes++;
-    }
-    activeWsConnections.forEach((connection) =>
-      connection.sendUTF(
-        JSON.stringify({
-          type: "ratingUpdate",
-          timestamp: body.timestamp,
-          likes: messageRatingToChange.likes,
-          dislikes: messageRatingToChange.dislikes,
-        })
-      )
-    );
-    res.send("message rating has been updated");
-  });
+    res
+      .status(400)
+      .send("Expected body to be a JSON object containing message rating.");
+    return;
+  }
+  const messageRatingToChange = arrayOfMessageObjects.find(
+    (message) => message.timestamp == req.body.timestamp
+  );
+  if (req.body.rating == "like") {
+    messageRatingToChange.likes++;
+  } else if (req.body.rating == "dislike") {
+    messageRatingToChange.dislikes++;
+  }
+  activeWsConnections.forEach((connection) =>
+    connection.sendUTF(
+      JSON.stringify({
+        type: "ratingUpdate",
+        timestamp: req.body.timestamp,
+        likes: messageRatingToChange.likes,
+        dislikes: messageRatingToChange.dislikes,
+      })
+    )
+  );
+  res.send("message rating has been updated");
 });
 
 webSocketServer.on("request", (request) => {
@@ -130,8 +105,15 @@ webSocketServer.on("request", (request) => {
   activeWsConnections.push(connection);
   connection.on("close", function (reasonCode, description) {
     // put removing connection from active connections array here
+
     console.log(
       new Date() + " Peer " + connection.remoteAddress + " disconnected."
     );
+
+    const index = activeWsConnections.indexOf(connection);
+    if (index > -1) {
+      // only splice array when item is found
+      activeWsConnections.splice(index, 1); // 2nd parameter means remove one item only
+    }
   });
 });
