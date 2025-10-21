@@ -130,23 +130,6 @@ const sendRating = async (timestamp, rating) => {
   });
 };
 
-const keepFetchingRatings = async () => {
-  const url = `${backendUrl}/rate`;
-  const rawResponse = await fetch(url);
-  const ratings = await rawResponse.json();
-
-  // Update ratings in state.messages
-  for (const rating of ratings) {
-    const msg = state.messages.find((m) => m.timestamp === rating.timestamp);
-    if (msg) {
-      msg.likes = rating.likes;
-      msg.dislikes = rating.dislikes;
-    }
-  }
-  render();
-  setTimeout(keepFetchingRatings, 1000);
-};
-
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
   if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {

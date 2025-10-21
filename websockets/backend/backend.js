@@ -125,10 +125,10 @@ app.post("/rate", (req, res) => {
   });
 });
 
-app.get("/rate", (req, res) => {
-  callbacksForNewRatings.push((value) => res.json(value));
-  //   res.json(ratings);
-});
+// app.get("/rate", (req, res) => {
+//   callbacksForNewRatings.push((value) => res.json(value));
+//   //   res.json(ratings);
+// });
 
 webSocketServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
