@@ -17,6 +17,8 @@ if (
 
 // const websocket = new WebSocket(`wss://${backendUrl}`);
 
+// It looks like you're using websockets just to notify "there's something for you to fetch", which feels slower than including the messages in the websocket itself.
+// What do you think?
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
   fetchAllMessagesSince();
@@ -43,6 +45,7 @@ const postMessageToBackend = async () => {
   const messageText = inputMessage.value.trim();
 
   if (!messageText) {
+    // This feels like it would be handy to extract a named function for "show an error message and then remove it".
     feedbackMessage.textContent = "Text is required.";
     setTimeout(() => (feedbackMessage.textContent = ""), 5000);
     return;
@@ -132,6 +135,7 @@ const sendRating = async (timestamp, rating) => {
 
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
+  // How unique do you expect timestamps to be? Can you see any risks with this approach to identifying messages?
   if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {
     state.messages.push(response);
     render();

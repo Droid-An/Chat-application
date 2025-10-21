@@ -33,6 +33,9 @@ app.listen(port, () => {
 
 app.post("/message", (req, res) => {
   const bodyBytes = [];
+
+  // It's quite hard to read what this function is doing, because it does lots of things at different levels of abstraction.
+  // Can you think how to make this function only act at one level of abstraction (e.g. by using a middleware for some of the handling)?
   req.on("data", (chunk) => bodyBytes.push(...chunk));
   req.on("end", () => {
     const bodyString = String.fromCharCode(...bodyBytes);
@@ -55,6 +58,7 @@ app.post("/message", (req, res) => {
     }
     const newMessage = {
       messageText: body.messageText,
+      // Can you think of any problems with using a user-supplied timestamp here, vs calculating the timestamp on the server?
       timestamp: body.timestamp,
       likes: 0,
       dislikes: 0,
@@ -129,6 +133,7 @@ webSocketServer.on("request", (request) => {
   console.log(new Date() + " Connection accepted.");
   activeWsConnections.push(connection);
   connection.on("close", function (reasonCode, description) {
+    // This looks like a TODO you meant to do?
     // put removing connection from active connections array here
     console.log(
       new Date() + " Peer " + connection.remoteAddress + " disconnected."
