@@ -116,12 +116,26 @@ const render = async () => {
   }
 };
 
+const updateRating = (ratings) => {
+  for (const rating of ratings) {
+    const msg = state.messages.find((m) => m.timestamp === rating.timestamp);
+    if (msg) {
+      msg.likes = rating.likes;
+      msg.dislikes = rating.dislikes;
+    }
+  }
+};
+
 const sendRating = async (timestamp, rating) => {
-  await fetch(`${backendUrl}/rate`, {
+  const rawResponse = await fetch(`${backendUrl}/rate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ timestamp, rating }),
   });
+  // this handler updates rating on page without waiting for keepFetchingRatings
+  const ratings = await rawResponse.json();
+  updateRating(ratings);
+  render();
 };
 
 const keepFetchingRatings = async () => {
@@ -130,13 +144,7 @@ const keepFetchingRatings = async () => {
   const ratings = await rawResponse.json();
 
   // Update ratings in state.messages
-  for (const rating of ratings) {
-    const msg = state.messages.find((m) => m.timestamp === rating.timestamp);
-    if (msg) {
-      msg.likes = rating.likes;
-      msg.dislikes = rating.dislikes;
-    }
-  }
+  updateRating(ratings);
   render();
   setTimeout(keepFetchingRatings, 1000);
 };

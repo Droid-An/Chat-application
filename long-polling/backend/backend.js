@@ -116,12 +116,12 @@ app.post("/rate", (req, res) => {
       likes: msg.likes || 0,
       dislikes: msg.dislikes || 0,
     }));
+    // need this response to immediately update client
+    res.json(ratings);
     while (callbacksForNewRatings.length > 0) {
       const callback = callbacksForNewRatings.pop();
       callback(ratings);
     }
-
-    res.send("message has been added successfully");
   });
 });
 
