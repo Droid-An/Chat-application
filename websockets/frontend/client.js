@@ -1,4 +1,5 @@
 "use strict";
+
 let websocket;
 let backendUrl;
 if (
@@ -140,23 +141,19 @@ const sendRating = async (timestamp, rating) => {
 
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
-  console.log("message recieved:", response);
   if (Array.isArray(response)) {
     console.log(response);
-    for (let object of response) {
-      if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
-        state.messages.push(object);
-      }
-    }
-  } else {
-    if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {
-      state.messages.push(response);
-      console.log("new messages pushed to the state");
-    } else {
-      console.log("message is already on list");
-    }
+    updateState(response);
+    render();
   }
-  render();
+  if (response.type === "newMessage") {
+    console.log("message recieved:", response);
+
+    updateState(response);
+
+    render();
+  }
+
   if (response.type === "ratingUpdate") {
     const msg = state.messages.find((m) => m.timestamp === response.timestamp);
     if (msg) {
@@ -166,6 +163,14 @@ websocket.addEventListener("message", (mesEvent) => {
     }
   }
 });
+
+const updateState = (update) => {
+  const updates = Array.isArray(update) ? update : [update];
+
+  for (let object of updates) {
+    state.messages.push(object);
+  }
+};
 
 // const fetchAllMessagesSince = async () => {
 //   const lastMessageTime =

@@ -43,6 +43,7 @@ app.post("/message", (req, res) => {
     return;
   }
   const newMessage = {
+    type: "newMessage",
     messageText: req.body.messageText,
     timestamp: Date.now(),
     likes: 0,
