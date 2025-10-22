@@ -106,8 +106,6 @@ webSocketServer.on("request", (request) => {
   activeWsConnections.push(connection);
   connection.sendUTF(JSON.stringify(arrayOfMessageObjects));
   connection.on("close", function (reasonCode, description) {
-    // put removing connection from active connections array here
-
     console.log(
       new Date().toLocaleString +
         " Peer " +

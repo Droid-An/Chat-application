@@ -56,7 +56,7 @@ const postMessageToBackend = async () => {
   }
   const url = `${backendUrl}/message`;
   try {
-    const res = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -71,6 +71,7 @@ const postMessageToBackend = async () => {
 const processMessagePost = async (e) => {
   e.preventDefault();
   await postMessageToBackend();
+  inputMessage.value = "";
 };
 
 const createMessageElement = (messageObject) => {
