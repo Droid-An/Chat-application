@@ -19,10 +19,11 @@ if (
 
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
-  fetchAllMessagesSince();
+  // fetchAllMessagesSince();
 });
 
 websocket.addEventListener("error", (e) => {
+  showErrorMessage(e);
   console.log(e);
   console.log(`ERROR`);
 });
@@ -38,8 +39,13 @@ const state = { messages: [] };
 
 const timestamp = Date.now();
 
-function showErrorMessage() {
-  feedbackMessage.textContent = "Text is required.";
+// made showErrorMessage to handle both strings and errors
+function showErrorMessage(error) {
+  const message =
+    typeof error === "string"
+      ? error
+      : `${error?.type || "Error"}: ${error?.message || "Unknown error"}`;
+  feedbackMessage.textContent = message;
   setTimeout(() => (feedbackMessage.textContent = ""), 5000);
 }
 
@@ -47,7 +53,7 @@ const postMessageToBackend = async () => {
   const messageText = inputMessage.value.trim();
 
   if (!messageText) {
-    showErrorMessage();
+    showErrorMessage("Message has no text");
     return;
   }
   const url = `${backendUrl}/message`;
@@ -134,12 +140,23 @@ const sendRating = async (timestamp, rating) => {
 
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
-  if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {
-    state.messages.push(response);
-    render();
+  console.log("message recieved:", response);
+  if (Array.isArray(response)) {
+    console.log(response);
+    for (let object of response) {
+      if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
+        state.messages.push(object);
+      }
+    }
   } else {
-    console.log("message is already on list");
+    if (!state.messages.some((mes) => mes.timestamp === response.timestamp)) {
+      state.messages.push(response);
+      console.log("new messages pushed to the state");
+    } else {
+      console.log("message is already on list");
+    }
   }
+  render();
   if (response.type === "ratingUpdate") {
     const msg = state.messages.find((m) => m.timestamp === response.timestamp);
     if (msg) {
@@ -150,23 +167,23 @@ websocket.addEventListener("message", (mesEvent) => {
   }
 });
 
-const fetchAllMessagesSince = async () => {
-  const lastMessageTime =
-    state.messages.length > 0
-      ? state.messages[state.messages.length - 1].timestamp
-      : null;
-  console.log("ask message since", lastMessageTime);
-  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-  const url = `${backendUrl}/messages${queryString}`;
-  const rawResponse = await fetch(url);
-  console.log(rawResponse);
-  const response = await rawResponse.json();
-  console.log(response);
-  for (let object of response) {
-    if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
-      state.messages.push(object);
-    }
-  }
+// const fetchAllMessagesSince = async () => {
+//   const lastMessageTime =
+//     state.messages.length > 0
+//       ? state.messages[state.messages.length - 1].timestamp
+//       : null;
+//   console.log("ask message since", lastMessageTime);
+//   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+//   const url = `${backendUrl}/messages${queryString}`;
+//   const rawResponse = await fetch(url);
+//   console.log(rawResponse);
+//   const response = await rawResponse.json();
+//   console.log(response);
+//   for (let object of response) {
+//     if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
+//       state.messages.push(object);
+//     }
+//   }
 
-  render();
-};
+//   render();
+// };

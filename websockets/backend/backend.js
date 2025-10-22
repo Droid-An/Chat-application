@@ -101,13 +101,17 @@ app.post("/rate", (req, res) => {
 
 webSocketServer.on("request", (request) => {
   const connection = request.accept(null, request.origin);
-  console.log(new Date() + " Connection accepted.");
+  console.log(new Date().toLocaleString() + " Connection accepted.");
   activeWsConnections.push(connection);
+  connection.sendUTF(JSON.stringify(arrayOfMessageObjects));
   connection.on("close", function (reasonCode, description) {
     // put removing connection from active connections array here
 
     console.log(
-      new Date() + " Peer " + connection.remoteAddress + " disconnected."
+      new Date().toLocaleString +
+        " Peer " +
+        connection.remoteAddress +
+        " disconnected."
     );
 
     const index = activeWsConnections.indexOf(connection);
