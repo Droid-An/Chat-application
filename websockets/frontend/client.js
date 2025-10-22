@@ -148,7 +148,6 @@ websocket.addEventListener("message", (mesEvent) => {
   }
   if (response.type === "newMessage") {
     console.log("message recieved:", response);
-
     updateState(response);
 
     render();
@@ -168,27 +167,8 @@ const updateState = (update) => {
   const updates = Array.isArray(update) ? update : [update];
 
   for (let object of updates) {
-    state.messages.push(object);
+    if (!state.messages.some((mes) => mes === object)) {
+      state.messages.push(object);
+    }
   }
 };
-
-// const fetchAllMessagesSince = async () => {
-//   const lastMessageTime =
-//     state.messages.length > 0
-//       ? state.messages[state.messages.length - 1].timestamp
-//       : null;
-//   console.log("ask message since", lastMessageTime);
-//   const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-//   const url = `${backendUrl}/messages${queryString}`;
-//   const rawResponse = await fetch(url);
-//   console.log(rawResponse);
-//   const response = await rawResponse.json();
-//   console.log(response);
-//   for (let object of response) {
-//     if (!state.messages.some((mes) => mes.timestamp === object.timestamp)) {
-//       state.messages.push(object);
-//     }
-//   }
-
-//   render();
-// };
