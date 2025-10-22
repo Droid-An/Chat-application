@@ -16,11 +16,8 @@ if (
   console.log("Running in deployed mode. Using live backend.");
 }
 
-// const websocket = new WebSocket(`wss://${backendUrl}`);
-
 websocket.addEventListener("open", () => {
   console.log("CONNECTED");
-  // fetchAllMessagesSince();
 });
 
 websocket.addEventListener("error", (e) => {
@@ -58,7 +55,6 @@ const postMessageToBackend = async () => {
     return;
   }
   const url = `${backendUrl}/message`;
-  console.log(url);
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -67,18 +63,13 @@ const postMessageToBackend = async () => {
         messageText,
       }),
     });
-    console.log("message posted to backend");
-
-    console.log("response from back:", res);
   } catch (err) {
-    console.error(err);
     feedbackMessage.textContent = err;
   }
 };
 
 const processMessagePost = async (e) => {
   e.preventDefault();
-  console.log("user wants to send the message");
   await postMessageToBackend();
 };
 
@@ -124,8 +115,6 @@ form.addEventListener("submit", processMessagePost);
 
 const render = async () => {
   chatField.innerHTML = "";
-  console.log(state.messages);
-  console.log(Math.max(...state.messages.map((obj) => obj.timestamp)));
   for (const messageObject of state.messages) {
     createMessageElement(messageObject);
   }
@@ -141,18 +130,11 @@ const sendRating = async (timestamp, rating) => {
 
 websocket.addEventListener("message", (mesEvent) => {
   const response = JSON.parse(mesEvent.data);
-  if (Array.isArray(response)) {
-    console.log(response);
+  // if we get the list of all messages or just one message
+  if (Array.isArray(response) || response.type === "newMessage") {
     updateState(response);
     render();
   }
-  if (response.type === "newMessage") {
-    console.log("message recieved:", response);
-    updateState(response);
-
-    render();
-  }
-
   if (response.type === "ratingUpdate") {
     const msg = state.messages.find((m) => m.timestamp === response.timestamp);
     if (msg) {
@@ -164,6 +146,7 @@ websocket.addEventListener("message", (mesEvent) => {
 });
 
 const updateState = (update) => {
+  // normalise input: always work with an array
   const updates = Array.isArray(update) ? update : [update];
 
   for (let object of updates) {
