@@ -1,29 +1,122 @@
+/* General layout */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-color: #f9f9f9;
+  color: #222;
+  margin: 0;
+  padding: 0;
 
-label {
-    display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-textarea {
-    display: block;
-    margin: 1rem 0;
-    resize: vertical;
+header{
+    display: flex;
+    justify-content: center;
 }
 
+/* Chat field */
 #chatField {
-  border: 1px dotted black;
-  min-height: 40px;
-  margin-top: 1em;
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
 }
 
+/* Message */
 .messageElement {
-    display: flex;
-    align-items: baseline;
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
 }
 
-/* .messageText{
-      width: 30%;
-} */
-.ratingElement{
-    display: flex;
-    width: 5em;
+.messageElement:hover {
+  background-color: #fafafa;
+}
+
+/* Message text */
+.messageText {
+  flex: 1;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Ratings container */
+.ratingElement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+/* Like/dislike buttons */
+.ratingElement button {
+  border: none;
+  background: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.ratingElement button:hover {
+  transform: scale(1.2);
+}
+
+.ratingElement div {
+  min-width: 1.2rem;
+  text-align: center;
+}
+
+/* Form styling */
+#messageForm {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+#inputMessage {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+#sendMessageBtn {
+  padding: 0.5rem 1rem;
+  background-color: #0078ff;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#sendMessageBtn:hover {
+  background-color: #005fd4;
+}
+
+/* Feedback message */
+#feedbackMessage {
+  text-align: center;
+  color: #d00;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
 }
