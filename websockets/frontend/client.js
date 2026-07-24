@@ -11,7 +11,7 @@ if (
   console.log("Running in local mode. Using local backend.");
 } else {
   backendUrl =
-    "https://droid-an-chat-application-backend.hosting.codeyourfuture.io";
+    "https://droid-an-chat-application-backend.grads.hosting.cyf.academy";
   websocket = new WebSocket(backendUrl);
   console.log("Running in deployed mode. Using live backend.");
 }
@@ -91,7 +91,7 @@ const createMessageElement = (messageObject) => {
   const likeButton = document.createElement("button");
   likeButton.textContent = "👍";
   likeButton.addEventListener("click", () =>
-    sendRating(messageObject.timestamp, "like")
+    sendRating(messageObject.timestamp, "like"),
   );
 
   const dislikesAmount = document.createElement("div");
@@ -99,7 +99,7 @@ const createMessageElement = (messageObject) => {
   const dislikeButton = document.createElement("button");
   dislikeButton.textContent = "👎";
   dislikeButton.addEventListener("click", () =>
-    sendRating(messageObject.timestamp, "dislike")
+    sendRating(messageObject.timestamp, "dislike"),
   );
 
   ratingElement.appendChild(likesAmount);
